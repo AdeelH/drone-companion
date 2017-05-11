@@ -10,6 +10,7 @@ from common import RectSelector
 from collections import namedtuple, deque
 
 Point = namedtuple('Point', ['x', 'y'])
+Size = namedtuple('Size', ['w', 'h'])
 FRAME_WIDTH, FRAME_HEIGHT = 640, 360
 CAM_CENTER = Point(int(FRAME_WIDTH / 2), int(FRAME_HEIGHT / 2))
 isFlying = False
@@ -24,18 +25,23 @@ isRecording = False
 found = False
 tracker = dlib.correlation_tracker()
 initialArea = None
-areaHistory = deque([], 10)
+initialSize = None
+sizeHistory = deque([], 10)
+MIN_HEIGHT = 100
+MAX_FORWARD_V = 1
 
 
 def startTracking(r):
     global tracker
     global initialArea
+    global initialSize
     global isTracking
     x0, y0, x1, y1 = r
     x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
     tracker.start_track(frame, dlib.rectangle(x0, y0, x1, y1))
     w, h = x1 - x0, y1 - y0
     initialArea = w * h
+    initialSize = Size(w, h)
     isTracking = True
 
 
@@ -43,16 +49,35 @@ def follow(d, x0, x1, y0, y1):
     w, h = x1 - x0, y1 - y0
     x, y = int(x0 + (w / 2)), int(y0 + (h / 2))
     dx, dy = x - CAM_CENTER.x, CAM_CENTER.y - y
-    va, vv = (dx / CAM_CENTER.x), (dy / CAM_CENTER.y)
+    angularV, verticalV = (dx / CAM_CENTER.x), (dy / CAM_CENTER.y)**2
 
-    areaHistory.append(w * h)
-    area = mean(areaHistory)
-    fb = (1 - (initialArea / area)**2)
-    fb = min(0.1, max(-0.1, fb))
-    print(d.navdata['demo']['altitude'])
-    if d.navdata['demo']['altitude'] < 250 and vv < 0:
-        vv = 0
-    d.move(0, fb, vv, va)
+    sizeHistory.append((w, h))
+    if w > h:
+        wSmoothed = mean([w for w, h in sizeHistory])
+        sizeRatio = initialSize.w / wSmoothed
+    else:
+        hSmoothed = mean([h for w, h in sizeHistory])
+        sizeRatio = initialSize.h / hSmoothed
+    # if too close
+    if sizeRatio < 1:
+        # move backward = positive forward tilt
+        forwardTilt = min(1 - sizeRatio, MAX_FORWARD_V)
+    else:
+        # move forward = negative forward tilt
+        forwardTilt = max(-min((sizeRatio - 1), 1), -MAX_FORWARD_V)
+    forwardTilt = forwardTilt**2 if forwardTilt > 0 else -(forwardTilt**2)
+    print("forwardTilt", forwardTilt)
+    altitude = d.navdata['demo']['altitude']
+    # print('theta', d.navdata['demo']['theta'], 'phi', d.navdata['demo']['phi'], 'psi', d.navdata['demo']['psi'])
+
+    if altitude <= MIN_HEIGHT and verticalV < 0:
+        print('must ... not ... touch ... ground')
+        verticalV = 0
+    m = max(abs(forwardTilt), abs(verticalV), abs(angularV))
+    if m < 0.05:
+        d.hover()
+    else:
+        d.move(0, forwardTilt, verticalV, angularV)
 
 
 def getCalibrationInfo():
