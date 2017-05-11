@@ -127,8 +127,6 @@ if __name__ == '__main__':
                 follow(d, x0, x1, y0, y1)
                 cv2.rectangle(frame, (x0, y0), (x1, y1), (0, 0, 255))
                 # cv2.line(frame, (xc, yc), (CAM_CENTER.x, CAM_CENTER.y), (0, 255, 0))
-            else:
-                d.hover()
 
             if isRecording:
                 out.write(frame)
@@ -160,6 +158,20 @@ if __name__ == '__main__':
                     d.takeoff()
                     print('lift off!')
                     isFlying = True
+            elif k == 'z':
+                d.turn_left()
+            elif k == 'x':
+                d.turn_right()
+            elif k == 'a':
+                d.move_left()
+            elif k == 'd':
+                d.move_right()
+            elif k == 'w':
+                d.move_forward()
+            elif k == 's':
+                d.move_backward()
+            else:
+                d.hover()
     finally:
         if isFlying:
             land()
