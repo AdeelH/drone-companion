@@ -104,9 +104,7 @@ if __name__ == '__main__':
         print('loading calibration info')
         mtx, dist, newcameramtx = getCalibrationInfo()
 
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
-        out = cv2.VideoWriter('recordings/{0}.avi'.format(timestamp), fourcc, 30.0, (640, 360))
+        out = None
 
         cv2.imshow('frame', np.array([FRAME_HEIGHT, FRAME_WIDTH, 3]))
         rs = RectSelector('frame', startTracking)
@@ -137,18 +135,22 @@ if __name__ == '__main__':
 
             cv2.circle(frame, CAM_CENTER, 1, (0, 0, 255), thickness=4)
             cv2.imshow('frame', frame)
-            k = cv2.waitKey(1) & 0xFF
-            if k == ord('q'):
+            k = chr(cv2.waitKey(1) & 0xFF)
+            if k == 'q':
                 break
-            elif k == ord('r'):
-                print('r')
-                isRecording = not isRecording
-            elif k == ord('t'):
-                trackerInd = (trackerInd + 1) % len(trackers)
-                print('tacker', trackers[trackerInd])
-            elif k == ord('c'):
+            elif k == 'r':
+                print('recording')
+                if out is None:
+                    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+                    timestamp = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+                    out = cv2.VideoWriter('recordings/{0}.avi'.format(timestamp), fourcc, 30.0, (640, 360))
+                    isRecording = True
+                else:
+                    out.release()
+                    isRecording = False
+            elif k == 'c':
                 isTracking = False
-            elif k == ord(' '):
+            elif k == ' ':
                 if isFlying:
                     land()
                     isFlying = False
@@ -161,9 +163,10 @@ if __name__ == '__main__':
     finally:
         if isFlying:
             land()
-        print('battery remaining:', d.navdata['demo']['battery'])
         print('halting...')
         d.halt()
         cv2.destroyAllWindows()
-        out.release()
+        print('battery remaining:', d.navdata['demo']['battery'])
+        if isRecording:
+            out.release()
         print('bye!')
