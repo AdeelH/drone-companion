@@ -2,14 +2,16 @@ import cv2
 import dlib
 import numpy as np
 import ardrone
-import math
 from statistics import mean
 import time
 from datetime import datetime
 from common import RectSelector
 from collections import namedtuple, deque
 from piData import PiThread
-
+import math
+import tkinter
+from tkinter import *
+from PIL import ImageTk, Image
 
 Point = namedtuple('Point', ['x', 'y'])
 Size = namedtuple('Size', ['w', 'h'])
@@ -33,6 +35,32 @@ MIN_HEIGHT = 100
 MAX_FORWARD_V = 1
 
 piData = ''
+battery_images = [Image.open("0.png"), Image.open("25.png"), Image.open("50.png"), Image.open("75.png"), Image.open("100.png")]
+
+
+def updateStream(tmp):
+    global img_bg
+    img_bg = tmp
+    canvas.itemconfigure(droneImage, image=img_bg)
+    return
+
+
+def updateBattery(battery):  # Check if changed
+    canvas.itemconfigure(batteryPercent, text=str(battery)+"%")
+
+    global img_battery
+    tmp = battery_images[int(math.ceil(battery/25))]
+    img_battery = ImageTk.PhotoImage(tmp.resize((int(tmp.width / 7), int(tmp.height / 7))))
+    canvas.itemconfigure(batteryIcon, image=img_battery)
+    return
+
+
+def recordPressed(event):
+    global recImg
+    if (1200 < event.x < 1200+recImg.width()) and (650 < event.y < 650+recImg.height()):
+        print("recording dat shit")
+    return
+###############################################################
 
 
 def getPiData(d):
@@ -105,6 +133,27 @@ def land():
 
 if __name__ == '__main__':
     try:
+        window = Tk()
+        window.wm_title("Sparrow")
+        frame = Frame(window, width=1280, height=720).grid(row=0, column=0, rowspan=3, columnspan=40)
+        canvas = tkinter.Canvas(frame, width=1280, height=720)
+        canvas.grid(row=0, column=0, rowspan=3, columnspan=40)
+
+        droneImage = canvas.create_image(0, 0, anchor=NW)
+
+        batteryIcon = canvas.create_image(12, 650, anchor=NW)
+        batteryPercent = canvas.create_text(70, 682, font=("Bold", 18), fill='white')
+
+        recImg = Image.open("record.png")
+        recImg = ImageTk.PhotoImage(recImg.resize((int(recImg.width / 9), int(recImg.height / 9))))
+        canvas.create_image(1200, 650, image=recImg, anchor=NW)
+        canvas.bind("<Button-1>", recordPressed)
+
+        updateStream(ImageTk.PhotoImage(Image.open("emptyroad.jpg")))  # drone.image.show()
+        updateBattery(76)  # drone.navdata['demo']['battery']
+
+########################################################################################################################
+
         print('Starting server for Pi')
         piThread = PiThread(getPiData)
         piThread.start()
@@ -120,10 +169,11 @@ if __name__ == '__main__':
 
         out = None
 
-        cv2.imshow('frame', np.array([FRAME_HEIGHT, FRAME_WIDTH, 3]))
+        # cv2.imshow('frame', np.array([FRAME_HEIGHT, FRAME_WIDTH, 3]))    #######Changed
         rs = RectSelector('frame', startTracking)
 
         print('battery remaining:', d.navdata['demo']['battery'])
+        updateBattery(d.navdata['demo']['battery'])
         if d.navdata['state']['emergency'] == 1:
             d.reset()
 
@@ -146,7 +196,8 @@ if __name__ == '__main__':
                 out.write(frame)
 
             cv2.circle(frame, CAM_CENTER, 1, (0, 0, 255), thickness=4)
-            cv2.imshow('frame', frame)
+            # cv2.imshow('frame', frame)    #####Changed
+            updateStream(frame)
             k = chr(cv2.waitKey(1) & 0xFF)
             if k == 'q':
                 break
@@ -186,6 +237,7 @@ if __name__ == '__main__':
                 d.move_backward()
             else:
                 d.hover()
+            window.update()
     finally:
         if isFlying:
             land()
@@ -193,6 +245,7 @@ if __name__ == '__main__':
         d.halt()
         cv2.destroyAllWindows()
         print('battery remaining:', d.navdata['demo']['battery'])
+        updateBattery(d.navdata['demo']['battery'])
         if isRecording:
             out.release()
         print('bye!')
