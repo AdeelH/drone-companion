@@ -170,7 +170,7 @@ if __name__ == '__main__':
         out = None
 
         # cv2.imshow('frame', np.array([FRAME_HEIGHT, FRAME_WIDTH, 3]))    #######Changed
-        rs = RectSelector('frame', startTracking)
+        # rs = RectSelector('frame', startTracking)
 
         print('battery remaining:', d.navdata['demo']['battery'])
         updateBattery(d.navdata['demo']['battery'])
@@ -181,8 +181,8 @@ if __name__ == '__main__':
             frame = cv2.cvtColor(np.array(d.image), cv2.COLOR_RGB2BGR)
             # frame = cv2.undistort(frame, mtx, dist)
             frame = cv2.undistort(frame, mtx, dist, None, newcameramtx)
-            if rs.dragging:
-                rs.draw(frame)
+            # if rs.dragging:
+            #     rs.draw(frame)
             if isTracking:
                 tracker.update(frame)
                 r = tracker.get_position()
@@ -197,7 +197,11 @@ if __name__ == '__main__':
 
             cv2.circle(frame, CAM_CENTER, 1, (0, 0, 255), thickness=4)
             # cv2.imshow('frame', frame)    #####Changed
-            updateStream(frame)
+            frameResized = cv2.resize(frame, (1280, 720))
+            im = Image.fromarray(frameResized)
+            imgtk = ImageTk.PhotoImage(image=im)
+            updateStream(imgtk)
+
             k = chr(cv2.waitKey(1) & 0xFF)
             if k == 'q':
                 break
