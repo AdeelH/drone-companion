@@ -8,6 +8,8 @@ import time
 from datetime import datetime
 from common import RectSelector
 from collections import namedtuple, deque
+from piData import PiThread
+
 
 Point = namedtuple('Point', ['x', 'y'])
 Size = namedtuple('Size', ['w', 'h'])
@@ -29,6 +31,14 @@ initialSize = None
 sizeHistory = deque([], 10)
 MIN_HEIGHT = 100
 MAX_FORWARD_V = 1
+
+piData = ''
+
+
+def getPiData(d):
+    global s
+    s = d
+    print(s)
 
 
 def startTracking(r):
@@ -95,6 +105,10 @@ def land():
 
 if __name__ == '__main__':
     try:
+        print('Starting server for Pi')
+        piThread = PiThread(getPiData)
+        piThread.start()
+
         print('connecting...')
         d = ardrone.ARDrone()
         print('waiting for video...')
