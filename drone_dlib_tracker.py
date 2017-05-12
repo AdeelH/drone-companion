@@ -49,7 +49,7 @@ def follow(d, x0, x1, y0, y1):
     w, h = x1 - x0, y1 - y0
     x, y = int(x0 + (w / 2)), int(y0 + (h / 2))
     dx, dy = x - CAM_CENTER.x, CAM_CENTER.y - y
-    angularV, verticalV = (dx / CAM_CENTER.x), (dy / CAM_CENTER.y)**2
+    angularV, verticalV = (dx / CAM_CENTER.x), (dy / CAM_CENTER.y)
 
     sizeHistory.append((w, h))
     if w > h:
@@ -65,7 +65,7 @@ def follow(d, x0, x1, y0, y1):
     else:
         # move forward = negative forward tilt
         forwardTilt = max(-min((sizeRatio - 1), 1), -MAX_FORWARD_V)
-    forwardTilt = forwardTilt**2 if forwardTilt > 0 else -(forwardTilt**2)
+    # forwardTilt = forwardTilt**2 if forwardTilt > 0 else -(forwardTilt**2)
     print("forwardTilt", forwardTilt)
     altitude = d.navdata['demo']['altitude']
     # print('theta', d.navdata['demo']['theta'], 'phi', d.navdata['demo']['phi'], 'psi', d.navdata['demo']['psi'])
