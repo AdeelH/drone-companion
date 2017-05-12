@@ -3,7 +3,7 @@ import dlib
 import numpy as np
 import ardrone
 import math
-from statistics import mean
+from statistics import mean, median
 import time
 from datetime import datetime
 from common import RectSelector
@@ -53,10 +53,10 @@ def follow(d, x0, x1, y0, y1):
 
     sizeHistory.append((w, h))
     if w > h:
-        wSmoothed = mean([w for w, h in sizeHistory])
+        wSmoothed = median([w for w, h in sizeHistory])
         sizeRatio = initialSize.w / wSmoothed
     else:
-        hSmoothed = mean([h for w, h in sizeHistory])
+        hSmoothed = median([h for w, h in sizeHistory])
         sizeRatio = initialSize.h / hSmoothed
     # if too close
     if sizeRatio < 1:
