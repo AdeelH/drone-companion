@@ -159,6 +159,7 @@ if __name__ == '__main__':
                 else:
                     print('3 ... 2 ... 1 ...')
                     d.trim()
+                    time.sleep(2)
                     d.takeoff()
                     print('lift off!')
                     isFlying = True
