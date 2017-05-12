@@ -133,7 +133,11 @@ if __name__ == '__main__':
 
             cv2.circle(frame, CAM_CENTER, 1, (0, 0, 255), thickness=4)
             cv2.imshow('frame', frame)
-            k = chr(cv2.waitKey(1) & 0xFF)
+            k = cv2.waitKey(1)
+            if k == -1:
+                d.hover()
+                continue
+            k = chr(k & 0xFF)
             if k == 'q':
                 break
             elif k == 'r':
