@@ -174,8 +174,6 @@ if __name__ == '__main__':
                 d.move_forward()
             elif k == 's':
                 d.move_backward()
-            else:
-                d.hover()
     finally:
         if isFlying:
             land()
