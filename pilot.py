@@ -14,12 +14,9 @@ class Pilot(object):
 			forwardTilt = min((1 - distRatio)**2, self.maxFb)
 		else:
 			# move forward = negative forward tilt
-		m = max(abs(forwardTilt), abs(verticalV), abs(angularV))
-		if m < 0.05:
-			self.drone.hover()
-		else:
-			self.drone.move(0, forwardTilt, verticalV, angularV)
 			forwardTilt = max(-min((distRatio - 1)**2, 1), -self.maxFb)
+		print(forwardTilt, angularV, verticalV)
+		self.drone.move2(0, forwardTilt, verticalV, angularV)
 
 	def land(self):
 		self.drone.land()
