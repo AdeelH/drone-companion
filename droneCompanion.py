@@ -32,6 +32,7 @@ class DroneCompanion(object):
 		print('waiting for video...')
 		while self.drone.image is None:
 			pass
+		print('Battery: {0}%'.format(self.drone.navdata['demo']['battery']))
 
 	def receiveSensorData(self, data):
 		self.sensorData = data
