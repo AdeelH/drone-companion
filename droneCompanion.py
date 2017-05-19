@@ -72,6 +72,14 @@ class DroneCompanion(object):
 		if self.gui.key == 'q':
 			self.abort()
 			return False
+		elif self.gui.key == ' ':
+			if self.state['isFlying']:
+				self.pilot.land()
+				self.state['isFlying'] = False
+			else:
+				self.pilot.takeoff()
+				self.state['isFlying'] = True
+
 		return True
 
 	def start(self):
