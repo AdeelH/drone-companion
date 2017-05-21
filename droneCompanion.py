@@ -3,6 +3,7 @@ import time
 import ardrone
 from preprocessor import Preprocessor
 from trackerDlib import Tracker
+from trackerOpencv import TrackerOpencv
 from locationEstimator import LocationEstimator
 from pilot import Pilot
 from sensorDataReceiver import SensorDataReceiver
@@ -43,6 +44,7 @@ class DroneCompanion(object):
 		x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
 		w, h = x1 - x0, y1 - y0
 		self.tracker = Tracker(self.frame, r)
+		# self.tracker = TrackerOpencv('KCF', self.frame, r)
 		self.locationEstimator = LocationEstimator(CAM_RES, w, h)
 		self.state['isTracking'] = True
 
