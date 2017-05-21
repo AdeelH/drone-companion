@@ -1,4 +1,5 @@
 import traceback
+import time
 import ardrone
 from preprocessor import Preprocessor
 from trackerDlib import Tracker
@@ -60,6 +61,8 @@ class DroneCompanion(object):
 			self.pilot.follow((xratio, yratio), dratio, None)
 
 	def update(self):
+		if self.drone.navdata['state']['emergency'] == 1:
+			return False
 		frame = cv2.cvtColor(np.array(self.drone.image), cv2.COLOR_RGB2BGR)
 		self.frame = self.preprocessor.undistort(frame)
 
@@ -89,9 +92,11 @@ class DroneCompanion(object):
 				ret = self.update()
 		except Exception:
 			traceback.print_exc()
-			self.abort()
+		self.abort()
 
 	def abort(self):
+		# self.sensorDataReceiver.stop()
 		self.drone.land()
+		time.sleep(2)
 		self.drone.halt()
 		self.gui.close()
