@@ -47,6 +47,8 @@ class DroneCompanion(object):
 		# self.tracker = TrackerOpencv('KCF', self.frame, r)
 		self.locationEstimator = LocationEstimator(CAM_RES, w, h)
 		self.state['isTracking'] = True
+		self.t0 = time.perf_counter()
+		self.i = 0
 
 	def track(self, frame):
 		rect = self.tracker.update(frame)
@@ -89,9 +91,13 @@ class DroneCompanion(object):
 
 	def start(self):
 		ret = True
+		self.t0 = time.perf_counter()
+		self.i = 0
 		try:
 			while ret:
 				ret = self.update()
+				print(self.i / (time.perf_counter() - self.t0))
+				self.i = self.i + 1
 		except Exception:
 			traceback.print_exc()
 		self.abort()
