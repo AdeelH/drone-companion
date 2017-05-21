@@ -16,7 +16,10 @@ class Pilot(object):
 			# move forward = negative forward tilt
 			forwardTilt = max(-min((distRatio - 1)**2, 1), -self.maxFb)
 		print(forwardTilt, angularV, verticalV)
-		self.drone.move2(0, forwardTilt, verticalV, angularV)
+		if abs(forwardTilt) < 0.05:
+			self.drone.move2(0, forwardTilt, verticalV, angularV)
+		else:
+			self.drone.move(0, forwardTilt, verticalV, angularV)
 
 	def land(self):
 		self.drone.land()
