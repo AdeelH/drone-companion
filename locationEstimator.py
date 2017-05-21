@@ -10,7 +10,6 @@ class LocationEstimator(object):
 		self.posParticles = ParticleFilter(200, camWidth, camHeight, 20, 10, 0.1)
 		self.sizeParticles = ParticleFilter(200, camWidth, camHeight, 20, 10, 0.1)
 		self.initialSize = (w, h)
-		pass
 
 	def estimate(self, rect):
 		x0, y0, x1, y1 = rect
