@@ -19,5 +19,8 @@ class SensorDataReceiver(threading.Thread):
 				data, addr = sock.recvfrom(8)
 				self.callback(struct.unpack('d', data)[0])
 			except:
-				self.stopping = True
-				sock.close()
+				break
+		sock.close()
+
+	def stop(self):
+		self.stopping = True
