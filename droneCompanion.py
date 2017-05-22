@@ -7,6 +7,7 @@ from locationEstimator import LocationEstimator
 from pilot import Pilot
 from sensorDataReceiver import SensorDataReceiver
 from guiOpencv import GUI
+from recorder import Recorder
 import cv2
 import numpy as np
 
@@ -26,6 +27,7 @@ class DroneCompanion(object):
 		self.drone = ardrone.ARDrone()
 		self.preprocessor = Preprocessor()
 		self.pilot = Pilot(self.drone, (0.5, 1, 1, 0.2))
+		self.recorder = Recorder((640, 360))
 		self.sensorData = None
 		# self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
 		# self.sensorDataReceiver.start()
@@ -61,29 +63,21 @@ class DroneCompanion(object):
 			self.pilot.follow((xratio, yratio), dratio, None)
 
 	def update(self):
-		if self.drone.navdata['state']['emergency'] == 1:
-			return False
-		frame = cv2.cvtColor(np.array(self.drone.image), cv2.COLOR_RGB2BGR)
-		self.frame = self.preprocessor.undistort(frame)
+		originalFrame = cv2.cvtColor(np.array(self.drone.image), cv2.COLOR_RGB2BGR)
+		self.frame = self.preprocessor.undistort(originalFrame)
 
 		if self.state['isTracking']:
 			self.track(self.frame)
 		elif self.state['isFlying']:
+			if self.drone.navdata['state']['emergency'] == 1:
+				return False
 			self.pilot.hover()
 
-		self.gui.display(self.frame)
-		if self.gui.key == 'q':
-			self.abort()
-			return False
-		elif self.gui.key == ' ':
-			if self.state['isFlying']:
-				self.pilot.land()
-				self.state['isFlying'] = False
-			else:
-				self.pilot.takeoff()
-				self.state['isFlying'] = True
+		if self.state['isRecording']:
+			self.recorder.record(self.frame)
 
-		return True
+		self.gui.display(self.frame)
+		return self.handleUserInput()
 
 	def start(self):
 		ret = True
@@ -93,6 +87,29 @@ class DroneCompanion(object):
 		except Exception:
 			traceback.print_exc()
 		self.abort()
+
+	def handleUserInput(self):
+		key = self.gui.key
+		if key == 'q':
+			self.abort()
+			return False
+		elif key == ' ':
+			if self.state['isFlying']:
+				self.pilot.land()
+				self.state['isFlying'] = False
+			else:
+				self.pilot.takeoff()
+				self.state['isFlying'] = True
+		elif key == 'r':
+			if self.state['isRecording']:
+				self.recorder.endRecording()
+				self.state['isRecording'] = False
+			else:
+				self.recorder.startNewRecording()
+				self.state['isRecording'] = True
+		elif key == 'p':
+			self.recorder.snap(self.frame)
+		return True
 
 	def abort(self):
 		# self.sensorDataReceiver.stop()
