@@ -55,7 +55,7 @@ class DroneCompanion(object):
 		xratio, yratio, xc, yc = pos
 		dratio, w, h = size
 		x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
-		self.gui.drawRect(rect, (xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2))
+		self.gui.drawRect(rect, (x0, y0, x1, y1))
 		if self.state['isFlying']:
 			self.pilot.follow((xratio, yratio), dratio, None)
 
