@@ -6,7 +6,8 @@ from trackerDlib import Tracker
 from locationEstimator import LocationEstimator
 from pilot import Pilot
 from sensorDataReceiver import SensorDataReceiver
-from guiOpencv import GUI
+# from guiOpencv import GUI
+from guiTk import GUI
 from recorder import Recorder
 import cv2
 import numpy as np
