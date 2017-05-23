@@ -51,20 +51,16 @@ class DroneCompanion(object):
 
 	def track(self, frame):
 		rect = self.tracker.update(frame)
-		x0, y0, x1, y1 = rect
-		x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
-		cv2.rectangle(frame, (x0, y0), (x1, y1), (0, 0, 255))
 		pos, size = self.locationEstimator.estimate(rect)
 		xratio, yratio, xc, yc = pos
 		dratio, w, h = size
 		x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
-		x0, y0, x1, y1 = int(x0), int(y0), int(x1), int(y1)
-		cv2.rectangle(frame, (x0, y0), (x1, y1), (0, 255, 0))
+		self.gui.drawRect(rect, (xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2))
 		if self.state['isFlying']:
 			self.pilot.follow((xratio, yratio), dratio, None)
 
 	def update(self):
-		originalFrame = cv2.cvtColor(np.array(self.drone.image), cv2.COLOR_RGB2BGR)
+		originalFrame = np.array(self.drone.image)
 		self.frame = self.preprocessor.undistort(originalFrame)
 
 		if self.state['isTracking']:
@@ -74,10 +70,10 @@ class DroneCompanion(object):
 				return False
 			self.pilot.hover()
 
+		self.gui.display(self.frame)
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
 
-		self.gui.display(self.frame)
 		return self.handleUserInput()
 
 	def start(self):
@@ -85,6 +81,7 @@ class DroneCompanion(object):
 		try:
 			while ret:
 				ret = self.update()
+				self.gui.window.update()
 		except Exception:
 			traceback.print_exc()
 		self.abort()
@@ -98,6 +95,7 @@ class DroneCompanion(object):
 			if self.state['isFlying']:
 				self.pilot.land()
 				self.state['isFlying'] = False
+
 			else:
 				self.pilot.takeoff()
 				self.state['isFlying'] = True
