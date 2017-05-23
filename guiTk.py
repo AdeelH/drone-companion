@@ -37,7 +37,7 @@ class GUI(object):
 
 		# Bound drag to right mouse button
 		self.canvas.bind("<B3-Motion>", self.mouseDragged)
-		self.newDrag = False
+		self.newDrag = True
 		self.canvas.bind("<ButtonRelease-3>", self.mouseStopped)
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='green', width=3)
 		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
