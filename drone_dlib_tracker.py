@@ -60,6 +60,37 @@ def recordPressed(event):
     if (1200 < event.x < 1200+recImg.width()) and (650 < event.y < 650+recImg.height()):
         print("recording dat shit")
     return
+
+
+def mouseDragged(event):
+    global newDrag
+    if newDrag:   # wasReleased
+        global startX, startY
+        newDrag = False
+        startX = event.x
+        startY = event.y
+
+    # Draw a rectangle
+    global myrect
+    #  canvas.delete(rect)
+    #  rect = canvas.create_rectangle(startX, startY, event.x, event.y)
+    canvas.coords(myrect, startX, startY, event.x, event.y)
+    print("Stahp it! "+str(event.x)+" "+str(event.y))
+    return
+
+
+def mouseStopped(event):
+    global newDrag
+    if not newDrag:
+        global endX, endY
+        newDrag = True
+        endX = event.x
+        endY = event.y
+        global startX, startY
+        print(str(startX) + " " + str(startY) + " " + str(endX) + " " + str(endY))
+    return
+
+
 ###############################################################
 
 
@@ -148,9 +179,13 @@ if __name__ == '__main__':
         recImg = ImageTk.PhotoImage(recImg.resize((int(recImg.width / 9), int(recImg.height / 9))))
         canvas.create_image(1200, 650, image=recImg, anchor=NW)
         canvas.bind("<Button-1>", recordPressed)
+        newDrag = True
+        canvas.bind("<B3-Motion>", mouseDragged)  # Bound drag to right mouse button
+        canvas.bind("<ButtonRelease-3>", mouseStopped)
+        myrect = canvas.create_rectangle(-1, -1, -1, -1, outline='green', width=3)  # Change the green color to the sexier green
 
         updateStream(ImageTk.PhotoImage(Image.open("emptyroad.jpg")))  # drone.image.show()
-        updateBattery(76)  # drone.navdata['demo']['battery']
+        updateBattery(0)
 
 ########################################################################################################################
 
