@@ -8,4 +8,7 @@ if __name__ == '__main__':
 		dc.start()
 	except Exception:
 		traceback.print_exc()
-		dc.abort()
+		try:
+			dc.abort()
+		except:
+			pass

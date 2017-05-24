@@ -50,9 +50,9 @@ class GUI(object):
 		self.window.bind("<KeyRelease-p>", self.handleInput)
 		self.window.bind("<KeyRelease- >", self.handleInput)
 
-        atexit.register(handleExit)
+		atexit.register(self.handleExit)
 
-		###############################DEFINITIONS###############################
+	###############################DEFINITIONS###############################
 
 	def display(self, frame):
 		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame))
@@ -89,5 +89,5 @@ class GUI(object):
 		self.canvas.coords(self.rect, points1)
 		self.canvas.coords(self.rect2, points2)
 
-    def handleExit(self):
-        self.window.destroy()
+	def handleExit(self):
+		self.window.destroy()
