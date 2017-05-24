@@ -86,8 +86,9 @@ class DroneCompanion(object):
 			traceback.print_exc()
 		self.abort()
 
-	def handleUserInput(self, key):
+	def handleUserInput(self, event):
 		# key = self.gui.key
+		key = event.char
 		if key == 'q':
 			self.abort()
 			return False

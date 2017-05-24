@@ -1,6 +1,7 @@
 from numpy import math
 from tkinter import *
 from PIL import Image, ImageTk
+import atexit
 
 
 class GUI(object):
@@ -32,6 +33,8 @@ class GUI(object):
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='green', width=3)
 		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 
+		self.canvas.create_text(645, 685, font=("Monofonto", 18), fill='green', text="Altitude: 1000ft")
+
 		self.recImg = Image.open("img/record.png")
 		self.recImg = ImageTk.PhotoImage(self.recImg.resize((int(self.recImg.width / 9), int(self.recImg.height / 9))))
 		self.canvas.create_image(1200, 650, image=self.recImg, anchor=NW)
@@ -42,7 +45,12 @@ class GUI(object):
 		self.newDrag = True
 		self.canvas.bind("<ButtonRelease-3>", self.mouseStopped)
 
-		self.window.bind("<KeyRelease>", self.keyPressed)
+		self.window.bind("<KeyRelease-q>", self.handleInput)
+		self.window.bind("<KeyRelease-r>", self.handleInput)
+		self.window.bind("<KeyRelease-p>", self.handleInput)
+		self.window.bind("<KeyRelease- >", self.handleInput)
+
+        atexit.register(handleExit)
 
 		###############################DEFINITIONS###############################
 
@@ -77,12 +85,9 @@ class GUI(object):
 			self.y1 = event.y
 			self.rectCallback((self.x0, self.y0, self.x1, self.y1))
 
-	def keyPressed(self, event):
-		self.handleInput(event.char)
-
 	def drawRect(self, points1, points2):
 		self.canvas.coords(self.rect, points1)
 		self.canvas.coords(self.rect2, points2)
 
-	def close(self):
-		self.window.destroy()
+    def handleExit(self):
+        self.window.destroy()
