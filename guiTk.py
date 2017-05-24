@@ -41,7 +41,7 @@ class GUI(object):
 		self.altitudeLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78', text="Altitude: 9000 mm")  # 00ff78 38b44a
 
 		self.recImg = Image.open("img/record.png")
-		self.recImg = ImageTk.PhotoImage(self.recImg.resize((int(self.recImg.width / 9), int(self.recImg.height / 9))))
+		self.recImg = ImageTk.PhotoImage(self.recImg.resize((71, 64)))
 		self.canvas.create_image(1200, 650, image=self.recImg, anchor=NW)
 		self.canvas.bind("<Button-1>", self.recordPressed)
 
