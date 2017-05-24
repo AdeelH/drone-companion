@@ -74,7 +74,7 @@ class DroneCompanion(object):
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
 
-		return self.handleUserInput()
+		return True
 
 	def start(self):
 		ret = True
