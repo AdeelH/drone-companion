@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 
 class GUI(object):
 
-	def __init__(self, rectCallback, handleUserInput):
+	def __init__(self, res, rectCallback, handleUserInput):
 		self.rectCallback = rectCallback
 		self.handleInput = handleUserInput
 		w = 1280
