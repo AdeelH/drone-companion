@@ -32,7 +32,7 @@ class DroneCompanion(object):
 		self.sensorData = None
 		# self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
 		# self.sensorDataReceiver.start()
-		self.gui = GUI(CAM_RES, self.startTracking, self.handleUserInput)
+		self.gui = GUI(self.startTracking, self.handleUserInput)
 		print('waiting for video...')
 		while self.drone.image is None:
 			pass
@@ -70,7 +70,7 @@ class DroneCompanion(object):
 				return False
 			self.pilot.hover()
 
-		self.gui.display(self.frame)
+		self.gui.update(self.frame, self.drone.navdata['demo']['battery'])#####################################
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
 
