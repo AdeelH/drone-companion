@@ -32,7 +32,7 @@ class DroneCompanion(object):
 		self.sensorData = None
 		# self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
 		# self.sensorDataReceiver.start()
-		self.gui = GUI(CAM_RES, self.startTracking)
+		self.gui = GUI(CAM_RES, self.startTracking, self.handleUserInput)
 		print('waiting for video...')
 		while self.drone.image is None:
 			pass
@@ -86,8 +86,8 @@ class DroneCompanion(object):
 			traceback.print_exc()
 		self.abort()
 
-	def handleUserInput(self):
-		key = self.gui.key
+	def handleUserInput(self, key):
+		# key = self.gui.key
 		if key == 'q':
 			self.abort()
 			return False

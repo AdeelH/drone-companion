@@ -5,9 +5,9 @@ from PIL import Image, ImageTk
 
 class GUI(object):
 
-	def __init__(self, res, rectCallback, windowName='vid'):
-		self.key = None
+	def __init__(self, rectCallback, handleUserInput):
 		self.rectCallback = rectCallback
+		self.handleInput = handleUserInput
 		w = 1280
 		h = 720
 		self.battery_images = [
@@ -27,20 +27,24 @@ class GUI(object):
 
 		self.batteryIcon = self.canvas.create_image(12, 650, anchor=NW)
 		self.batteryPercent = self.canvas.create_text(70, 682, font=("Bold", 18), fill='white')
+		self.updateBattery(0)
+
+		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='green', width=3)
+		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 
 		self.recImg = Image.open("img/record.png")
 		self.recImg = ImageTk.PhotoImage(self.recImg.resize((int(self.recImg.width / 9), int(self.recImg.height / 9))))
 		self.canvas.create_image(1200, 650, image=self.recImg, anchor=NW)
 		self.canvas.bind("<Button-1>", self.recordPressed)
 
-		self.updateBattery(0)
-
 		# Bound drag to right mouse button
 		self.canvas.bind("<B3-Motion>", self.mouseDragged)
 		self.newDrag = True
 		self.canvas.bind("<ButtonRelease-3>", self.mouseStopped)
-		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='green', width=3)
-		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
+
+		self.window.bind("<KeyRelease>", self.keyPressed)
+
+		###############################DEFINITIONS###############################
 
 	def display(self, frame):
 		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame))
@@ -54,7 +58,7 @@ class GUI(object):
 		self.canvas.itemconfigure(self.batteryIcon, image=self.img_battery)
 
 	def recordPressed(self, event):
-		if (600 < event.x < 600 + self.recImg.width()) and (290 < event.y < 290 + self.recImg.height()):
+		if (1204 < event.x < 1204+self.recImg.width()) and (655 < event.y < 655+self.recImg.height()):
 			print("Recording")
 
 	def mouseDragged(self, event):
@@ -72,6 +76,9 @@ class GUI(object):
 			self.x1 = event.x
 			self.y1 = event.y
 			self.rectCallback((self.x0, self.y0, self.x1, self.y1))
+
+	def keyPressed(self, event):
+		self.handleInput(event.char)
 
 	def drawRect(self, points1, points2):
 		self.canvas.coords(self.rect, points1)
