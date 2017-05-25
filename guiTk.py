@@ -104,4 +104,7 @@ class GUI(object):
 		self.canvas.coords(self.rect2, points2)
 
 	def handleExit(self):
-		self.window.destroy()
+		try:
+			self.window.destroy()
+		except:
+			pass

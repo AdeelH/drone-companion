@@ -116,4 +116,4 @@ class DroneCompanion(object):
 		self.drone.land()
 		time.sleep(2)
 		self.drone.halt()
-		self.gui.close()
+		self.gui.handleExit()
