@@ -40,8 +40,8 @@ class Pilot(object):
 				return 0
 			else:
 				if d1 < 65:
-					return 0.5 * (0.96**d1)
-				return -0.5 * (0.96**d2)
+					return 0.5 * (0.95**d1)
+				return -0.5 * (0.95**d2)
 		return 0
 
 	def land(self):
@@ -52,8 +52,13 @@ class Pilot(object):
 		self.drone.trim()
 		self.drone.takeoff()
 
-	def hover(self):
-		self.drone.hover()
+	def hover(self, sensorData=(1e3, 1e3, 1e3, 1e3)):
+		fb, lr = self.avoidObstacles(sensorData)
+		print(sensorData, fb, lr)
+		if abs(fb) < 0.05 and abs(lr) < 0.05:
+			self.drone.hover()
+		else:
+			self.drone.move(lr, fb, verticalV, angularV)
 
 	def reset(self):
 		if self.drone.navdata['state']['emergency'] == 1:

@@ -77,7 +77,7 @@ class DroneCompanion(object):
 			if self.drone.navdata['state']['emergency'] == 1:
 				self.state['running'] = False
 				return
-			self.pilot.hover()
+			self.pilot.hover(self.sensorData)
 
 		self.gui.update(self.frame, self.drone.navdata['demo'])
 		if self.state['isRecording']:
