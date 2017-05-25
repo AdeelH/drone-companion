@@ -49,6 +49,9 @@ class DroneCompanion(object):
 		self.locationEstimator = LocationEstimator(CAM_RES, w, h)
 		self.state['isTracking'] = True
 
+	def endTracking(self):
+		self.state['isTracking'] = False
+
 	def track(self, frame):
 		rect = self.tracker.update(frame)
 		pos, size = self.locationEstimator.estimate(rect)
@@ -109,6 +112,8 @@ class DroneCompanion(object):
 				self.state['isRecording'] = True
 		elif key == 'p':
 			self.recorder.snap(self.frame)
+		elif key == 'c':
+			self.endTracking()
 		return True
 
 	def abort(self):
