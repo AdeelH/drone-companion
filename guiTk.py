@@ -34,6 +34,7 @@ class GUI(object):
 
 		self.droneIcon = self.canvas.create_image(730, 660, anchor=NW)
 
+		self.selectionRect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='blue', width=3)
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
 		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 
@@ -96,13 +97,14 @@ class GUI(object):
 			self.y0 = event.y
 
 		# Draw a rectangle
-		self.canvas.coords(self.rect, self.x0, self.y0, event.x, event.y)
+		self.canvas.coords(self.selectionRect, self.x0, self.y0, event.x, event.y)
 
 	def mouseStopped(self, event):
 		if not self.newDrag:
 			self.newDrag = True
 			self.x1 = event.x
 			self.y1 = event.y
+			self.canvas.coords(self.selectionRect, (-1, -1, -1, -1))
 			self.rectCallback((self.x0, self.y0, self.x1, self.y1))
 
 	def drawRect(self, points1, points2):
