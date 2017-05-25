@@ -31,8 +31,8 @@ class DroneCompanion(object):
 		self.pilot = Pilot(self.drone, (0.5, 1, 1, 0.2))
 		self.recorder = Recorder((640, 360))
 		self.sensorData = None
-		# self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
-		# self.sensorDataReceiver.start()
+		self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
+		self.sensorDataReceiver.start()
 		self.gui = GUI(self.startTracking, self.handleUserInput)
 		print('waiting for video...')
 		while self.drone.image is None:
@@ -61,8 +61,8 @@ class DroneCompanion(object):
 		if not any([math.isnan(x) for x in [xratio.sum(), yratio.sum(), xc, yc, dratio.sum(), w, h]]):
 			x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
 			self.gui.drawRect(rect, (x0, y0, x1, y1))
-		if self.state['isFlying']:
-			self.pilot.follow((xratio, yratio), dratio, None)
+		# if self.state['isFlying']:
+		self.pilot.follow((xratio, yratio), dratio, self.sensorData)
 
 	def update(self):
 		originalFrame = np.array(self.drone.image)
@@ -119,7 +119,8 @@ class DroneCompanion(object):
 		return True
 
 	def abort(self):
-		# self.sensorDataReceiver.stop()
+		self.sensorDataReceiver.stop()
+		self.sensorDataReceiver.join()
 		self.drone.land()
 		time.sleep(2)
 		self.drone.halt()
