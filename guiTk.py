@@ -18,7 +18,7 @@ class GUI(object):
 			Image.open("img/75.png").resize((28, 63)),
 			Image.open("img/100.png").resize((28, 63))
 		]
-		self.copterImg = Image.open("img/copter.png").resize((88, 88))
+		# self.copterImg = Image.open("img/copter.png").resize((88, 88))
 		self.oldBattery = 100
 		self.oldAngle = 0
 		self.window = Tk()
@@ -77,13 +77,13 @@ class GUI(object):
 		navdataText = '{0}\n{1}'.format(altText, angleText)
 		self.canvas.itemconfigure(self.navDataLabel, text=navdataText)
 
-		if phi != self.oldAngle:
-			self.copterImg = self.copterImg.rotate(-self.oldAngle)
-			self.copterImg = self.copterImg.rotate(phi)
-			self.img_copter = ImageTk.PhotoImage(self.copterImg)
-			self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
-			self.canvas.coords(self.droneIcon, (730, 660))
-			self.oldAngle = phi
+		# if phi != self.oldAngle:
+		# 	self.copterImg = self.copterImg.rotate(-self.oldAngle)
+		# 	self.copterImg = self.copterImg.rotate(phi)
+		# 	self.img_copter = ImageTk.PhotoImage(self.copterImg)
+		# 	self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
+		# 	self.canvas.coords(self.droneIcon, (730, 660))
+		# 	self.oldAngle = phi
 
 	def recordPressed(self, event):
 		if (1204 < event.x < 1204+self.recImg.width()) and (655 < event.y < 655+self.recImg.height()):
