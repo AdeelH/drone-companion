@@ -59,7 +59,8 @@ class GUI(object):
 	###############################DEFINITIONS###############################
 
 	def update(self, frame, navdata):
-		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame).resize((1280, 720)))
+		# self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame).resize((1280, 720)))
+		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame))
 		self.canvas.itemconfigure(self.droneImage, image=self.img_bg)
 
 		battery, altitude = navdata['battery'], navdata['altitude']
