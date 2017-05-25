@@ -38,7 +38,7 @@ class GUI(object):
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
 		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 
-		self.altitudeLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78', text="Altitude: 9000 mm")  # 00ff78 38b44a
+		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78', text="Altitude: ---- mm\n     Angle: --°")  # 00ff78 38b44a
 
 		self.recImg = Image.open("img/record.png")
 		self.recImg = ImageTk.PhotoImage(self.recImg.resize((71, 64)))
@@ -70,7 +70,7 @@ class GUI(object):
 			self.canvas.itemconfigure(self.batteryIcon, image=self.img_battery)
 			self.oldBattery = battery
 
-		self.canvas.itemconfigure(self.altitudeLabel, text=str("Altitude: " + str(altitude) + " mm"))
+		self.canvas.itemconfigure(self.navDataLabel, text=str("Altitude: "+str(altitude)+" mm\n     Angle: "+str(angle)+"°"))
 
 		if angle != self.oldAngle:
 			self.copterImg = self.copterImg.rotate(angle)
