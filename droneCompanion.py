@@ -64,7 +64,7 @@ class DroneCompanion(object):
 			x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
 			self.gui.drawRect(rect, (x0, y0, x1, y1))
 		# if self.state['isFlying']:
-		self.pilot.follow((xratio, yratio), dratio, (1e3, 1e3))
+		self.pilot.follow((xratio, yratio), dratio, self.sensorData)
 
 	def update(self):
 		originalFrame = np.array(self.drone.image)

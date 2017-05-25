@@ -16,8 +16,8 @@ class SensorDataReceiver(threading.Thread):
 		sock.bind(('', self.port))
 		while not self.stopping:
 			try:
-				data, addr = sock.recvfrom(12)
-				self.callback(struct.unpack('iii', data))
+				data, addr = sock.recvfrom(16)
+				self.callback(struct.unpack('iiii', data))
 			except:
 				break
 		sock.close()
