@@ -20,7 +20,7 @@ class GUI(object):
 		]
 		self.copterImg = Image.open("img/copter.png").resize((88, 88))
 		self.oldBattery = 100
-		self.oldAngle = 0
+		# self.oldAngle = 0
 		self.window = Tk()
 		self.window.wm_title("Drone Companion")
 		frame = Frame(self.window, width=w, height=h).grid(row=0, column=0, rowspan=3, columnspan=40)
@@ -37,7 +37,7 @@ class GUI(object):
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
 		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 
-		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78', text="Altitude: ---- mm\n     Angle: --°")  # 00ff78 38b44a
+		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78')  # 00ff78 38b44a
 
 		self.recImg = Image.open("img/record.png")
 		self.recImg = ImageTk.PhotoImage(self.recImg.resize((71, 64)))
@@ -75,6 +75,10 @@ class GUI(object):
 
 		navdataText = 'Altitude {0} mm\nAngles: {1}°, {2}°, {3}°'.format(altitude, theta, phi, psi)
 		self.canvas.itemconfigure(self.navDataLabel, text=navdataText)
+
+		self.copterImg = self.copterImg.rotate(psi)
+		self.img_copter = ImageTk.PhotoImage(self.copterImg)
+		self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
 
 		# if angle != self.oldAngle:
 		# 	self.copterImg = self.copterImg.rotate(angle)
