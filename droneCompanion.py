@@ -14,7 +14,7 @@ import numpy as np
 import math
 
 
-CAM_RES = (640, 360)
+CAM_RES = (1280, 720)
 
 
 class DroneCompanion(object):
@@ -22,6 +22,7 @@ class DroneCompanion(object):
 	def __init__(self):
 		print('Connecting...')
 		self.state = {
+			'running': True,
 			'isFlying': False,
 			'isTracking': False,
 			'isRecording': False
@@ -29,7 +30,7 @@ class DroneCompanion(object):
 		self.drone = ardrone.ARDrone()
 		self.preprocessor = Preprocessor()
 		self.pilot = Pilot(self.drone, (0.5, 1, 1, 0.2))
-		self.recorder = Recorder((640, 360))
+		self.recorder = Recorder(CAM_RES)
 		self.sensorData = None
 		self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
 		self.sensorDataReceiver.start()
@@ -52,6 +53,7 @@ class DroneCompanion(object):
 
 	def endTracking(self):
 		self.state['isTracking'] = False
+		self.gui.undrawRects()
 
 	def track(self, frame):
 		rect = self.tracker.update(frame)
@@ -62,30 +64,29 @@ class DroneCompanion(object):
 			x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
 			self.gui.drawRect(rect, (x0, y0, x1, y1))
 		# if self.state['isFlying']:
-		self.pilot.follow((xratio, yratio), dratio, self.sensorData)
+		self.pilot.follow((xratio, yratio), dratio, (1e3, 1e3))
 
 	def update(self):
 		originalFrame = np.array(self.drone.image)
 		self.frame = self.preprocessor.undistort(originalFrame)
+		self.frame = cv2.resize(self.frame, None, fx=2, fy=2)
 
 		if self.state['isTracking']:
 			self.track(self.frame)
 		elif self.state['isFlying']:
 			if self.drone.navdata['state']['emergency'] == 1:
-				return False
+				self.state['running'] = False
+				return
 			self.pilot.hover()
 
 		self.gui.update(self.frame, self.drone.navdata['demo'])
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
 
-		return True
-
 	def start(self):
-		ret = True
 		try:
-			while ret:
-				ret = self.update()
+			while self.state['running']:
+				self.update()
 				self.gui.window.update()
 		except Exception:
 			traceback.print_exc()
@@ -96,12 +97,11 @@ class DroneCompanion(object):
 		key = event.char
 		if key == 'q':
 			self.abort()
-			return False
+			self.state['running'] = False
 		elif key == ' ':
 			if self.state['isFlying']:
 				self.pilot.land()
 				self.state['isFlying'] = False
-
 			else:
 				self.pilot.takeoff()
 				self.state['isFlying'] = True
@@ -116,12 +116,11 @@ class DroneCompanion(object):
 			self.recorder.snap(self.frame)
 		elif key == 'c':
 			self.endTracking()
-		return True
 
 	def abort(self):
 		self.sensorDataReceiver.stop()
-		self.sensorDataReceiver.join()
 		self.drone.land()
 		time.sleep(2)
 		self.drone.halt()
 		self.gui.handleExit()
+		self.sensorDataReceiver.join()

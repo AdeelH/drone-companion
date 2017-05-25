@@ -6,7 +6,7 @@ class Pilot(object):
 		self.maxFb, self.maxAv, self.maxVv, self.maxLr = limits
 		self.drone.trim()
 
-	def follow(self, targetOffsetRatio, distRatio, sensorData):
+	def follow(self, targetOffsetRatio, distRatio, sensorData=(1e3, 1e3)):
 		angularV, verticalV = targetOffsetRatio
 		# if too close
 		if distRatio < 1:
@@ -26,7 +26,7 @@ class Pilot(object):
 			self.drone.move(leftRightTilt, forwardBackwardTilt, verticalV, angularV)
 
 	def avoidObstacles(self, sensorData):
-		f, b, _ = sensorData
+		f, b = sensorData
 		# f, b, l, r = sensorData
 		fb = self.avoidObstaclesOnAxis(f, b)
 		# lr = self.avoidObstaclesOnAxis(l, r)

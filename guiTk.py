@@ -20,7 +20,7 @@ class GUI(object):
 		]
 		self.copterImg = Image.open("img/copter.png").resize((88, 88))
 		self.oldBattery = 100
-		# self.oldAngle = 0
+		self.oldAngle = 0
 		self.window = Tk()
 		self.window.wm_title("Drone Companion")
 		frame = Frame(self.window, width=w, height=h).grid(row=0, column=0, rowspan=3, columnspan=40)
@@ -56,10 +56,9 @@ class GUI(object):
 
 		atexit.register(self.handleExit)
 
-	###############################DEFINITIONS###############################
+	# ----------------------------- DEFINITIONS -------------------------------
 
 	def update(self, frame, navdata):
-		# self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame).resize((1280, 720)))
 		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame))
 		self.canvas.itemconfigure(self.droneImage, image=self.img_bg)
 
@@ -73,19 +72,18 @@ class GUI(object):
 			self.canvas.itemconfigure(self.batteryIcon, image=self.img_battery)
 			self.oldBattery = battery
 
-		navdataText = 'Altitude {0} mm\nAngles: {1}°, {2}°, {3}°'.format(altitude, theta, phi, psi)
+		altText = 'Altitude {0} mm'.format(altitude)
+		angleText = 'Angles: {1}°, {2}°, {3}°'.format(altitude, theta, phi, psi)
+		navdataText = '{0}\n{1}'.format(altText, angleText)
 		self.canvas.itemconfigure(self.navDataLabel, text=navdataText)
 
-		self.copterImg = self.copterImg.rotate(psi)
-		self.img_copter = ImageTk.PhotoImage(self.copterImg)
-		self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
-
-		# if angle != self.oldAngle:
-		# 	self.copterImg = self.copterImg.rotate(angle)
-		# 	self.img_copter = ImageTk.PhotoImage(self.copterImg)
-		# 	self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
-		# 	self.oldAngle = angle
-		# return
+		if phi != self.oldAngle:
+			self.copterImg = self.copterImg.rotate(-self.oldAngle)
+			self.copterImg = self.copterImg.rotate(phi)
+			self.img_copter = ImageTk.PhotoImage(self.copterImg)
+			self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
+			self.canvas.coords(self.droneIcon, (730, 660))
+			self.oldAngle = phi
 
 	def recordPressed(self, event):
 		if (1204 < event.x < 1204+self.recImg.width()) and (655 < event.y < 655+self.recImg.height()):
@@ -110,6 +108,10 @@ class GUI(object):
 	def drawRect(self, points1, points2):
 		self.canvas.coords(self.rect, points1)
 		self.canvas.coords(self.rect2, points2)
+
+	def undrawRects(self):
+		self.canvas.coords(self.rect, (-1, -1, -1, -1))
+		self.canvas.coords(self.rect2, (-1, -1, -1, -1))
 
 	def handleExit(self):
 		try:
