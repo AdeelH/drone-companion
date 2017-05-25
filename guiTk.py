@@ -31,7 +31,6 @@ class GUI(object):
 
 		self.batteryIcon = self.canvas.create_image(12, 650, anchor=NW)
 		self.batteryPercent = self.canvas.create_text(70, 683, font=("Bold", 18), fill='white')
-		self.updateBattery(0)
 
 		self.droneIcon = self.canvas.create_image(730, 660, anchor=NW)
 
@@ -59,9 +58,12 @@ class GUI(object):
 
 	###############################DEFINITIONS###############################
 
-	def update(self, frame, battery, altitude, angle):
-		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame).resize(2))
+	def update(self, frame, navdata):
+		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame).resize((1280, 720)))
 		self.canvas.itemconfigure(self.droneImage, image=self.img_bg)
+
+		battery, altitude = navdata['battery'], navdata['altitude']
+		theta, phi, psi = navdata['theta'], navdata['phi'], navdata['psi']
 
 		if battery != self.oldBattery:
 			self.canvas.itemconfigure(self.batteryPercent, text=str(battery) + "%")
@@ -70,14 +72,15 @@ class GUI(object):
 			self.canvas.itemconfigure(self.batteryIcon, image=self.img_battery)
 			self.oldBattery = battery
 
-		self.canvas.itemconfigure(self.navDataLabel, text=str("Altitude: "+str(altitude)+" mm\n     Angle: "+str(angle)+"°"))
+		navdataText = 'Altitude {0} mm\nAngles: {1}°, {2}°, {3}°'.format(altitude, theta, phi, psi)
+		self.canvas.itemconfigure(self.navDataLabel, text=navdataText)
 
-		if angle != self.oldAngle:
-			self.copterImg = self.copterImg.rotate(angle)
-			self.img_copter = ImageTk.PhotoImage(self.copterImg)
-			self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
-			self.oldAngle = angle
-		return
+		# if angle != self.oldAngle:
+		# 	self.copterImg = self.copterImg.rotate(angle)
+		# 	self.img_copter = ImageTk.PhotoImage(self.copterImg)
+		# 	self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
+		# 	self.oldAngle = angle
+		# return
 
 	def recordPressed(self, event):
 		if (1204 < event.x < 1204+self.recImg.width()) and (655 < event.y < 655+self.recImg.height()):

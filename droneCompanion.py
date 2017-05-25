@@ -70,7 +70,7 @@ class DroneCompanion(object):
 				return False
 			self.pilot.hover()
 
-		self.gui.update(self.frame, self.drone.navdata['demo']['battery'])#####################################
+		self.gui.update(self.frame, self.drone.navdata['demo'])
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
 
