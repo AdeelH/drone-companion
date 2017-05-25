@@ -4,6 +4,7 @@ class Pilot(object):
 	def __init__(self, drone, limits):
 		self.drone = drone
 		self.maxFb, self.maxAv, self.maxVv, self.maxLr = limits
+		self.drone.trim()
 
 	def follow(self, targetOffsetRatio, distRatio, sensorData):
 		angularV, verticalV = targetOffsetRatio

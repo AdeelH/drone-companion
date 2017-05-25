@@ -24,21 +24,20 @@ class GUI(object):
 		self.window = Tk()
 		self.window.wm_title("Drone Companion")
 		frame = Frame(self.window, width=w, height=h).grid(row=0, column=0, rowspan=3, columnspan=40)
-		self.canvas = Canvas(frame, width=w, height=h, cursor="crosshair")
+		self.canvas = Canvas(frame, width=w, height=h)
 		self.canvas.grid(row=0, column=0, rowspan=3, columnspan=40)
 
 		self.droneImage = self.canvas.create_image(0, 0, anchor=NW)
 
 		self.batteryIcon = self.canvas.create_image(12, 650, anchor=NW)
 		self.batteryPercent = self.canvas.create_text(70, 683, font=("Bold", 18), fill='white')
-		self.updateBattery(0)
 
 		self.droneIcon = self.canvas.create_image(730, 660, anchor=NW)
 
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
 		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 
-		self.navDataLabel = self.canvas.create_text(660, 675, font=("Monofonto", 16, "italic"), fill='#38b44a', text="Altitude: ---- mm\n     Angle: --°")  # 00ff78 38b44a
+		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78', text="Altitude: ---- mm\n     Angle: --°")  # 00ff78 38b44a
 
 		self.recImg = Image.open("img/record.png")
 		self.recImg = ImageTk.PhotoImage(self.recImg.resize((71, 64)))
@@ -59,9 +58,13 @@ class GUI(object):
 
 	###############################DEFINITIONS###############################
 
-	def update(self, frame, battery, altitude, angleX, angleY):
-		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame).resize(2))
+	def update(self, frame, navdata):
+		# self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame).resize((1280, 720)))
+		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame))
 		self.canvas.itemconfigure(self.droneImage, image=self.img_bg)
+
+		battery, altitude = navdata['battery'], navdata['altitude']
+		theta, phi, psi = navdata['theta'], navdata['phi'], navdata['psi']
 
 		if battery != self.oldBattery:
 			self.canvas.itemconfigure(self.batteryPercent, text=str(battery) + "%")
@@ -70,14 +73,15 @@ class GUI(object):
 			self.canvas.itemconfigure(self.batteryIcon, image=self.img_battery)
 			self.oldBattery = battery
 
-		self.canvas.itemconfigure(self.navDataLabel, text=str("Altitude: "+str(altitude)+" mm\n    AngleX: "+str(angleX)+"°\n    AngleY: "+str(angleX)+"°"))
+		navdataText = 'Altitude {0} mm\nAngles: {1}°, {2}°, {3}°'.format(altitude, theta, phi, psi)
+		self.canvas.itemconfigure(self.navDataLabel, text=navdataText)
 
-		if angleY != self.oldAngle:
-			self.copterImg = self.copterImg.rotate(angle)
-			self.img_copter = ImageTk.PhotoImage(self.copterImg)
-			self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
-			self.oldAngle = angleY
-		return
+		# if angle != self.oldAngle:
+		# 	self.copterImg = self.copterImg.rotate(angle)
+		# 	self.img_copter = ImageTk.PhotoImage(self.copterImg)
+		# 	self.canvas.itemconfigure(self.droneIcon, image=self.img_copter)
+		# 	self.oldAngle = angle
+		# return
 
 	def recordPressed(self, event):
 		if (1204 < event.x < 1204+self.recImg.width()) and (655 < event.y < 655+self.recImg.height()):
@@ -104,4 +108,7 @@ class GUI(object):
 		self.canvas.coords(self.rect2, points2)
 
 	def handleExit(self):
-		self.window.destroy()
+		try:
+			self.window.destroy()
+		except:
+			pass

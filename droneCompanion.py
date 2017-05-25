@@ -11,6 +11,7 @@ from guiTk import GUI
 from recorder import Recorder
 import cv2
 import numpy as np
+import math
 
 
 CAM_RES = (640, 360)
@@ -49,13 +50,17 @@ class DroneCompanion(object):
 		self.locationEstimator = LocationEstimator(CAM_RES, w, h)
 		self.state['isTracking'] = True
 
+	def endTracking(self):
+		self.state['isTracking'] = False
+
 	def track(self, frame):
 		rect = self.tracker.update(frame)
 		pos, size = self.locationEstimator.estimate(rect)
 		xratio, yratio, xc, yc = pos
 		dratio, w, h = size
-		x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
-		self.gui.drawRect(rect, (x0, y0, x1, y1))
+		if not any([math.isnan(x) for x in [xratio.sum(), yratio.sum(), xc, yc, dratio.sum(), w, h]]):
+			x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
+			self.gui.drawRect(rect, (x0, y0, x1, y1))
 		if self.state['isFlying']:
 			self.pilot.follow((xratio, yratio), dratio, None)
 
@@ -70,7 +75,7 @@ class DroneCompanion(object):
 				return False
 			self.pilot.hover()
 
-		self.gui.update(self.frame, self.drone.navdata['demo']['battery'])#####################################
+		self.gui.update(self.frame, self.drone.navdata['demo'])
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
 
@@ -109,6 +114,8 @@ class DroneCompanion(object):
 				self.state['isRecording'] = True
 		elif key == 'p':
 			self.recorder.snap(self.frame)
+		elif key == 'c':
+			self.endTracking()
 		return True
 
 	def abort(self):
