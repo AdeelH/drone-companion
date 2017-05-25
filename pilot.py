@@ -17,12 +17,16 @@ class Pilot(object):
 			forwardBackwardTilt = max(-min((distRatio - 1)**2, 1), -self.maxFb)
 		fb, lr = self.avoidObstacles(sensorData)
 		print(sensorData, fb, lr)
-		if abs(forwardBackwardTilt) < 0.05 and abs(fb) < 0.05 and abs(lr) < 0.05:
-			self.drone.move2(0, 0, verticalV, angularV)
+		if abs(forwardBackwardTilt) < 0.05:
+			if abs(fb) < 0.05 and abs(lr) < 0.05:
+				self.drone.move2(0, 0, verticalV, angularV)
+			else:
+				self.drone.move(lr, fb, verticalV, angularV)
 		else:
-			forwardBackwardTilt = fb if fb is not None else forwardBackwardTilt
-			leftRightTilt = lr if lr is not None else 0
-			self.drone.move(leftRightTilt, forwardBackwardTilt, verticalV, angularV)
+			if abs(fb) < 0.05 and abs(lr) < 0.05:
+				self.drone.move(leftRightTilt, forwardBackwardTilt, verticalV, angularV)
+			else:
+				self.drone.move(lr, fb, verticalV, angularV)
 
 	def avoidObstacles(self, sensorData):
 		f, b, l, r = sensorData
