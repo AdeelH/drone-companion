@@ -32,7 +32,7 @@ class GUI(object):
 		self.batteryIcon = self.canvas.create_image(12, 650, anchor=NW)
 		self.batteryPercent = self.canvas.create_text(70, 683, font=("Bold", 18), fill='white')
 
-		self.droneIcon = self.canvas.create_image(770, 645, anchor=NW)
+		self.droneIcon = self.canvas.create_image(770, 645, anchor=NW)#
 
 		self.selectionRect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='blue', width=3)
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
