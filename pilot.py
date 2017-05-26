@@ -29,7 +29,7 @@ class Pilot(object):
 				self.drone.move(lr, fb, verticalV, angularV)
 
 	def avoidObstacles(self, sensorData):
-		f, b, l, r = sensorData
+		l, b, r, f = sensorData
 		fb = self.avoidObstaclesOnAxis(f, b)
 		lr = self.avoidObstaclesOnAxis(l, r)
 		return fb, lr
