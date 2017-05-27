@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-class Preprocessor(object):
+class ImageProcessor(object):
 
 	def __init__(self):
 		self.loadCameraParams('config/calibration')
@@ -16,3 +16,6 @@ class Preprocessor(object):
 		# undistorted = cv2.undistort(img, self.mtx, self.dist)
 		undistorted = cv2.undistort(img, self.mtx, self.dist, None, self.newcameramtx)
 		return undistorted
+
+	def resize(self, img, scaleFactor):
+		return cv2.resize(img, None, fx=scaleFactor, fy=scaleFactor)

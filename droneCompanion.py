@@ -1,7 +1,7 @@
 import traceback
 import time
 import ardrone
-from preprocessor import Preprocessor
+from imageProcessor import ImageProcessor
 from trackerDlib import Tracker
 from locationEstimator import LocationEstimator
 from pilot import Pilot
@@ -30,7 +30,7 @@ class DroneCompanion(object):
 		}
 
 		self.drone = ardrone.ARDrone()
-		self.preprocessor = Preprocessor()
+		self.imageProcessor = ImageProcessor()
 		self.pilot = Pilot(self.drone, (0.5, 1, 1, 0.2))
 		self.recorder = Recorder((CAM_RES[0] * displayScalingFactor, CAM_RES[1] * displayScalingFactor))
 		self.sensorData = None
@@ -72,7 +72,7 @@ class DroneCompanion(object):
 
 	def update(self):
 		originalFrame = np.array(self.drone.image)
-		self.frame = self.preprocessor.undistort(originalFrame)
+		self.frame = self.imageProcessor.undistort(originalFrame)
 
 		if self.state['isTracking']:
 			self.track(self.frame)
@@ -82,7 +82,7 @@ class DroneCompanion(object):
 				return
 			self.pilot.hover(self.sensorData)
 
-		self.frame = cv2.resize(self.frame, None, fx=displayScalingFactor, fy=displayScalingFactor)
+		self.frame = self.imageProcessor.resize(self.frame, displayScalingFactor)
 		self.gui.update(self.frame, self.drone.navdata['demo'])
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
