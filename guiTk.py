@@ -51,8 +51,8 @@ class GUI(object):
 		self.droneIcon = self.canvas.create_image(770, 645, anchor=NW)
 
 		self.selectionRect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='blue', width=3)
-		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
-		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
+		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
+		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
 
 		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78')
 
