@@ -27,7 +27,7 @@ class GUI(object):
 
 		self.oldBattery = 100
 		self.oldAngle = 0
-		self.newDrag = True
+		self.dragging = False
 
 		atexit.register(self.handleExit)
 
@@ -91,18 +91,18 @@ class GUI(object):
 		self.inputCallback('r')
 
 	def mouseDragged(self, event):
-		if self.newDrag:   # wasReleased
-			self.newDrag = False
-			self.x0 = event.x
-			self.y0 = event.y
-
-		# Draw a rectangle
-		self.canvas.coords(self.selectionRect, self.x0, self.y0, event.x, event.y)
+		if not self.dragging:
+			self.dragging = True
+			self.x0, self.y0 = event.x, event.y
+		else:
+			# Draw a rectangle
+			self.canvas.coords(self.selectionRect, self.x0, self.y0, event.x, event.y)
 
 	def mouseStopped(self, event):
-		if not self.newDrag:
-			self.newDrag = True
+		if self.dragging:
+			self.dragging = False
 			self.canvas.coords(self.selectionRect, (-1, -1, -1, -1))
+
 			x0, y0 = self.x0 / self.imageScaleFactor, self.y0 / self.imageScaleFactor
 			x1, y1 = event.x / self.imageScaleFactor, event.y / self.imageScaleFactor
 			if x0 > x1:
