@@ -28,6 +28,7 @@ class DroneCompanion(object):
 			'isTracking': False,
 			'isRecording': False
 		}
+
 		self.drone = ardrone.ARDrone()
 		self.preprocessor = Preprocessor()
 		self.pilot = Pilot(self.drone, (0.5, 1, 1, 0.2))
@@ -36,6 +37,7 @@ class DroneCompanion(object):
 		self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
 		self.sensorDataReceiver.start()
 		self.gui = GUI(displayScalingFactor, self.startTracking, self.handleUserInput)
+
 		print('waiting for video...')
 		while self.drone.image is None:
 			pass
@@ -58,12 +60,13 @@ class DroneCompanion(object):
 
 	def track(self, frame):
 		rect = self.tracker.update(frame)
+		self.gui.drawTrackingRect(rect)
 		pos, size = self.locationEstimator.estimate(rect)
 		xratio, yratio, xc, yc = pos
 		dratio, w, h = size
 		if not any([math.isnan(x) for x in [xratio.sum(), yratio.sum(), xc, yc, dratio.sum(), w, h]]):
 			x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
-			self.gui.drawRects(rect, (x0, y0, x1, y1))
+			self.gui.drawSmoothingRect((x0, y0, x1, y1))
 		if self.state['isFlying']:
 			self.pilot.follow((xratio, yratio), dratio, self.sensorData)
 
@@ -94,7 +97,6 @@ class DroneCompanion(object):
 		self.abort()
 
 	def handleUserInput(self, key):
-		# key = self.gui.key
 		if key == 'q':
 			self.abort()
 			self.state['running'] = False
