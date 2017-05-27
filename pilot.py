@@ -19,7 +19,7 @@ class Pilot(object):
 		print(sensorData, fb, lr)
 		if abs(forwardBackwardTilt) < 0.05:
 			if abs(fb) < 0.05 and abs(lr) < 0.05:
-				self.drone.move2(0, 0, verticalV, angularV)
+				self.drone.move2(verticalV, angularV)
 			else:
 				self.drone.move(lr, fb, verticalV, angularV)
 		else:
