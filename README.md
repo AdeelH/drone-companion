@@ -13,6 +13,6 @@ A desktop app for the Parrot AR Drone 2.0. Specify a target in the video and wat
 
 ## Dependencies
 - [python-ardrone](https://github.com/AdeelH/python-ardrone)
-- OpenCV
+- OpenCV 3.x
 - Dlib
 - NumPy
