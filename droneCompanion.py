@@ -79,7 +79,7 @@ class DroneCompanion(object):
 				return
 			self.pilot.hover(self.sensorData)
 
-		self.frame = cv2.resize(self.frame, None, fx=2, fy=2)
+		self.frame = cv2.resize(self.frame, None, fx=displayScalingFactor, fy=displayScalingFactor)
 		self.gui.update(self.frame, self.drone.navdata['demo'])
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
