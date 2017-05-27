@@ -14,7 +14,8 @@ import numpy as np
 import math
 
 
-CAM_RES = (1280, 720)
+CAM_RES = (640, 360)
+displayScalingFactor = 2
 
 
 class DroneCompanion(object):
@@ -30,11 +31,11 @@ class DroneCompanion(object):
 		self.drone = ardrone.ARDrone()
 		self.preprocessor = Preprocessor()
 		self.pilot = Pilot(self.drone, (0.5, 1, 1, 0.2))
-		self.recorder = Recorder(CAM_RES)
+		self.recorder = Recorder((CAM_RES[0] * displayScalingFactor, CAM_RES[1] * displayScalingFactor))
 		self.sensorData = None
 		self.sensorDataReceiver = SensorDataReceiver(3000, self.receiveSensorData)
 		self.sensorDataReceiver.start()
-		self.gui = GUI(self.startTracking, self.handleUserInput)
+		self.gui = GUI(displayScalingFactor, self.startTracking, self.handleUserInput)
 		print('waiting for video...')
 		while self.drone.image is None:
 			pass
@@ -62,14 +63,13 @@ class DroneCompanion(object):
 		dratio, w, h = size
 		if not any([math.isnan(x) for x in [xratio.sum(), yratio.sum(), xc, yc, dratio.sum(), w, h]]):
 			x0, y0, x1, y1 = xc - w / 2, yc - h / 2, xc + w / 2, yc + h / 2
-			self.gui.drawRect(rect, (x0, y0, x1, y1))
-		# if self.state['isFlying']:
-		self.pilot.follow((xratio, yratio), dratio, self.sensorData)
+			self.gui.drawRects(rect, (x0, y0, x1, y1))
+		if self.state['isFlying']:
+			self.pilot.follow((xratio, yratio), dratio, self.sensorData)
 
 	def update(self):
 		originalFrame = np.array(self.drone.image)
 		self.frame = self.preprocessor.undistort(originalFrame)
-		self.frame = cv2.resize(self.frame, None, fx=2, fy=2)
 
 		if self.state['isTracking']:
 			self.track(self.frame)
@@ -79,6 +79,7 @@ class DroneCompanion(object):
 				return
 			self.pilot.hover(self.sensorData)
 
+		self.frame = cv2.resize(self.frame, None, fx=2, fy=2)
 		self.gui.update(self.frame, self.drone.navdata['demo'])
 		if self.state['isRecording']:
 			self.recorder.record(self.frame)
@@ -92,9 +93,8 @@ class DroneCompanion(object):
 			traceback.print_exc()
 		self.abort()
 
-	def handleUserInput(self, event):
+	def handleUserInput(self, key):
 		# key = self.gui.key
-		key = event.char
 		if key == 'q':
 			self.abort()
 			self.state['running'] = False

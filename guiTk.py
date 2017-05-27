@@ -6,11 +6,34 @@ import atexit
 
 class GUI(object):
 
-	def __init__(self, rectCallback, handleUserInput):
+	def __init__(self, imageScaleFactor, rectCallback, inputCallback):
+		self.imageScaleFactor = imageScaleFactor
 		self.rectCallback = rectCallback
-		self.handleInput = handleUserInput
-		w = 1280
-		h = 720
+		self.inputCallback = inputCallback
+		w, h = 1280, 720
+
+		self.window = Tk()
+		self.window.wm_title("Drone Companion")
+		frame = Frame(self.window, width=w, height=h).grid(row=0, column=0, rowspan=3, columnspan=40)
+		self.canvas = Canvas(frame, width=w, height=h)
+		self.canvas.grid(row=0, column=0, rowspan=3, columnspan=40)
+
+		self.initElements()
+
+		# Bind drag to right mouse button
+		self.canvas.bind("<B3-Motion>", self.mouseDragged)
+		self.canvas.bind("<ButtonRelease-3>", self.mouseStopped)
+		self.window.bind("<KeyRelease>", lambda evt: self.inputCallback(evt.char))
+
+		self.oldBattery = 100
+		self.oldAngle = 0
+		self.newDrag = True
+
+		atexit.register(self.handleExit)
+
+	# ----------------------------- DEFINITIONS -------------------------------
+
+	def initElements(self):
 		self.battery_images = [
 			Image.open("img/0.png").resize((28, 63)),
 			Image.open("img/25.png").resize((28, 63)),
@@ -19,45 +42,24 @@ class GUI(object):
 			Image.open("img/100.png").resize((28, 63))
 		]
 		self.origCopter = Image.open("img/copter.png").resize((88, 88))
-		self.oldBattery = 100
-		self.oldAngle = 0
-		self.window = Tk()
-		self.window.wm_title("Drone Companion")
-		frame = Frame(self.window, width=w, height=h).grid(row=0, column=0, rowspan=3, columnspan=40)
-		self.canvas = Canvas(frame, width=w, height=h)
-		self.canvas.grid(row=0, column=0, rowspan=3, columnspan=40)
 
 		self.droneImage = self.canvas.create_image(0, 0, anchor=NW)
 
 		self.batteryIcon = self.canvas.create_image(12, 650, anchor=NW)
 		self.batteryPercent = self.canvas.create_text(70, 683, font=("Bold", 18), fill='white')
 
-		self.droneIcon = self.canvas.create_image(770, 645, anchor=NW)#
+		self.droneIcon = self.canvas.create_image(770, 645, anchor=NW)
 
 		self.selectionRect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='blue', width=3)
 		self.rect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
 		self.rect2 = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 
-		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78')  # 00ff78 38b44a
+		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78')
 
 		self.recImg = Image.open("img/record.png")
 		self.recImg = ImageTk.PhotoImage(self.recImg.resize((71, 64)))
-		self.canvas.create_image(1200, 650, image=self.recImg, anchor=NW)
-		self.canvas.bind("<Button-1>", self.recordPressed)
-
-		# Bound drag to right mouse button
-		self.canvas.bind("<B3-Motion>", self.mouseDragged)
-		self.newDrag = True
-		self.canvas.bind("<ButtonRelease-3>", self.mouseStopped)
-
-		self.window.bind("<KeyRelease-q>", self.handleInput)
-		self.window.bind("<KeyRelease-r>", self.handleInput)
-		self.window.bind("<KeyRelease-p>", self.handleInput)
-		self.window.bind("<KeyRelease- >", self.handleInput)
-
-		atexit.register(self.handleExit)
-
-	# ----------------------------- DEFINITIONS -------------------------------
+		recImgId = self.canvas.create_image(1200, 650, image=self.recImg, anchor=NW)
+		self.canvas.tag_bind(recImgId, "<Button-1>", self.recordPressed)
 
 	def update(self, frame, navdata):
 		self.img_bg = ImageTk.PhotoImage(Image.fromarray(frame))
@@ -86,8 +88,7 @@ class GUI(object):
 			self.oldAngle = phi
 
 	def recordPressed(self, event):
-		if (1204 < event.x < 1204+self.recImg.width()) and (655 < event.y < 655+self.recImg.height()):
-			print("Recording")
+		self.inputCallback('r')
 
 	def mouseDragged(self, event):
 		if self.newDrag:   # wasReleased
@@ -101,14 +102,18 @@ class GUI(object):
 	def mouseStopped(self, event):
 		if not self.newDrag:
 			self.newDrag = True
-			self.x1 = event.x
-			self.y1 = event.y
 			self.canvas.coords(self.selectionRect, (-1, -1, -1, -1))
-			self.rectCallback((self.x0, self.y0, self.x1, self.y1))
+			x0, y0 = self.x0 / self.imageScaleFactor, self.y0 / self.imageScaleFactor
+			x1, y1 = event.x / self.imageScaleFactor, event.y / self.imageScaleFactor
+			if x0 > x1:
+				x0, x1 = x1, x0
+			if y0 > y1:
+				y0, y1 = y1, y0
+			self.rectCallback((x0, y0, x1, y1))
 
-	def drawRect(self, points1, points2):
-		self.canvas.coords(self.rect, points1)
-		self.canvas.coords(self.rect2, points2)
+	def drawRects(self, rect1, rect2):
+		self.canvas.coords(self.rect, tuple([self.imageScaleFactor * c for c in rect1]))
+		self.canvas.coords(self.rect2, tuple([self.imageScaleFactor * c for c in rect2]))
 
 	def undrawRects(self):
 		self.canvas.coords(self.rect, (-1, -1, -1, -1))
