@@ -8,8 +8,8 @@ A desktop app for the Parrot AR Drone 2.0. Specify a target in the video and wat
 `<space>` - takeoff/land  
 `r` - start/stop recording  
 `p` - take a picture  
-`q` - quit  
 `c` - stop tracking  
+`q` - quit  
 
 ## Dependencies
 - [python-ardrone](https://github.com/AdeelH/python-ardrone)
