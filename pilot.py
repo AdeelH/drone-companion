@@ -24,11 +24,13 @@ class Pilot(object):
 				self.drone.move(lr, fb, verticalV, angularV)
 		else:
 			if abs(fb) < 0.05 and abs(lr) < 0.05:
-				self.drone.move(leftRightTilt, forwardBackwardTilt, verticalV, angularV)
+				self.drone.move(0, forwardBackwardTilt, verticalV, angularV)
 			else:
 				self.drone.move(lr, fb, verticalV, angularV)
 
 	def avoidObstacles(self, sensorData):
+		if sensorData is None:
+			return 0, 0
 		l, b, r, f = sensorData
 		fb = self.avoidObstaclesOnAxis(f, b)
 		lr = self.avoidObstaclesOnAxis(l, r)
@@ -58,7 +60,7 @@ class Pilot(object):
 		if abs(fb) < 0.05 and abs(lr) < 0.05:
 			self.drone.hover()
 		else:
-			self.drone.move(lr, fb, verticalV, angularV)
+			self.drone.move(lr, fb, 0, 0)
 
 	def reset(self):
 		if self.drone.navdata['state']['emergency'] == 1:

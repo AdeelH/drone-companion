@@ -15,7 +15,10 @@ class LocationEstimator(object):
 		x0, y0, x1, y1 = rect
 		xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
 		w, h = x1 - x0, y1 - y0
-		return self.estimatePos(xc, yc), self.estimateSize(w, h)
+		try:
+			return self.estimatePos(xc, yc), self.estimateSize(w, h)
+		except:
+			return (xc, yc), (w, h)
 
 	def estimatePos(self, xc, yc):
 		self.posParticles.update(np.array([xc, yc]))
