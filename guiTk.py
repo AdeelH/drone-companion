@@ -19,19 +19,25 @@ class GUI(object):
 		self.canvas.grid(row=0, column=0, rowspan=3, columnspan=40)
 
 		self.initElements()
-
-		# Bind drag to right mouse button
-		self.canvas.bind("<B3-Motion>", self.mouseDragged)
-		self.canvas.bind("<ButtonRelease-3>", self.mouseStopped)
-		self.window.bind("<KeyRelease>", lambda evt: self.inputCallback(evt.char))
+		self.initEventListeners()
 
 		self.oldBattery = 100
 		self.oldAngle = 0
 		self.dragging = False
 
+	def initElements(self):
+		self.video = self.canvas.create_image(0, 0, anchor=NW)
+		self.initRects()
+		self.initNavDataDisplay()
+		self.initButtons()
+
+	def initEventListeners(self):
+		self.canvas.bind("<B3-Motion>", self.mouseDragged)
+		self.canvas.bind("<ButtonRelease-3>", self.mouseStopped)
+		self.window.bind("<KeyRelease>", lambda evt: self.inputCallback(evt.char))
 		atexit.register(self.handleExit)
 
-	def initElements(self):
+	def initNavDataDisplay(self):
 		self.battery_images = [
 			Image.open("img/0.png").resize((28, 63)),
 			Image.open("img/25.png").resize((28, 63)),
@@ -39,21 +45,20 @@ class GUI(object):
 			Image.open("img/75.png").resize((28, 63)),
 			Image.open("img/100.png").resize((28, 63))
 		]
-
-		self.video = self.canvas.create_image(0, 0, anchor=NW)
-
 		self.batteryIcon = self.canvas.create_image(12, 650, anchor=NW)
 		self.batteryPercent = self.canvas.create_text(70, 683, font=("Bold", 18), fill='white')
 
 		self.droneIconImage = Image.open("img/copter.png").resize((88, 88))
 		self.droneIcon = self.canvas.create_image(770, 645, anchor=NW)
 
+		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78')
+
+	def initRects(self):
 		self.selectionRect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='blue', width=3)
 		self.trackingRect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='red', width=3)
 		self.smoothingRect = self.canvas.create_rectangle(-1, -1, -1, -1, outline='#38b44a', width=3)
 
-		self.navDataLabel = self.canvas.create_text(650, 686, font=("Monofonto", 18, "italic"), fill='#00ff78')
-
+	def initButtons(self):
 		self.recImg = Image.open("img/record.png")
 		self.recImg = ImageTk.PhotoImage(self.recImg.resize((71, 64)))
 		recImgId = self.canvas.create_image(1200, 650, image=self.recImg, anchor=NW)
@@ -99,8 +104,7 @@ class GUI(object):
 		if not self.dragging:
 			self.dragging = True
 			self.x0, self.y0 = event.x, event.y
-		else:
-			self.canvas.coords(self.selectionRect, self.x0, self.y0, event.x, event.y)
+		self.canvas.coords(self.selectionRect, self.x0, self.y0, event.x, event.y)
 
 	def mouseStopped(self, event):
 		if self.dragging:
