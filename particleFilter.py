@@ -18,10 +18,10 @@ class ParticleFilter(object):
 		return np.dot(np.random.rand(n, 2), [[x, 0], [0, y]])
 
 	def update(self, sensorReading):
+		ws = self.reweigh(sensorReading, cov=self.sensorVar)
+		self.ws = ws / sum(ws)
 		ps = self.sample(self.ws)
 		self.particles = self.diffuse(ps)
-		ws = self.reweigh(sensorReading, cov=self.sensorVar)
-		self.ws = ws / sum(self.ws)
 
 	def addNoisyParticles(self):
 		self.particles[0 : self.nn, ] = self.genParticles(self.nn, self.x, self.y)
